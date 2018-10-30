@@ -1,27 +1,60 @@
-import uuid from 'uuid';
-export const addExpense = (
-    {
-      description = '',
-      note = '',
-      amount = 0,
-      createdAt = 0
-    } = {}
-  ) => ({
+import database from '../firebase/firebase';
+export const addExpense = (expense)=> ({
     type: 'ADD_EXPENSE',
-    expense: {
-      id: uuid(),
-      description,
-      note,
-      amount,
-      createdAt
-    }
+    expense
   });
+
+
+  export const startAddExpense = (expenseData={})=>{
+  return (dispatch)=>{
+    const {description='', note='',amount=0,createdAt=0}=expenseData;
+    const expense = {description,note,amount,createdAt};
+      database.ref('expenses').push(expense).then((ref)=>{
+        dispatch(addExpense((
+          {
+            id:ref.id,
+            ...expense
+          }
+        )));
+      });
+  };
+  };
+
+  export const setExpense = (expense)=>{
+     return {
+       type: 'SET_EXPENSE',
+       expense
+     };
+  };
+
+  export const startSetExpense = ()=>{
+    return (dispatch)=>{
+      return database.ref('expenses').once('value').then((snapshot)=>{
+        const expenses = [];
+        snapshot.forEach((child)=>{
+          expenses.push({
+            id: child.key,
+            ...child.val()
+          });
+        });
+    dispatch(setExpense(expenses));
+      });
+    };
+  };
   
   // REMOVE_EXPENSE
   export const removeExpense = ({ id } = {}) => ({
     type: 'REMOVE_EXPENSE',
     id
   });
+
+ export const startRemoveExpense = ({id}={})=>{
+   return (dispatch)=>{
+    return database.ref(`expenses/${id}`).remove().then(()=>{
+       dispatch(removeExpense({id}));
+     });
+   };
+  };
   
   // EDIT_EXPENSE
  export const editExpense = (id, updates) => ({

@@ -8,7 +8,8 @@ const ExpenseList = (props)=>(
            {props.expenses.length<1?<p>NO EXPENSES</p>:<h3>EXPENSES LIST</h3>} 
     
      {props.expenses.map((expense)=>{
-         return <ExpenseListItem key={expense.id} {...expense}/> 
+         let id = Math.floor((Math.random()*100)+1);
+         return <ExpenseListItem key={id} {...expense}/> 
      })}
     </div>
 );
