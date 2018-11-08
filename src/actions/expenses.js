@@ -12,7 +12,7 @@ export const addExpense = (expense)=> ({
       database.ref('expenses').push(expense).then((ref)=>{
         dispatch(addExpense((
           {
-            id:ref.id,
+            id:ref.key,
             ...expense
           }
         )));
@@ -31,6 +31,7 @@ export const addExpense = (expense)=> ({
     return (dispatch)=>{
       return database.ref('expenses').once('value').then((snapshot)=>{
         const expenses = [];
+    
         snapshot.forEach((child)=>{
           expenses.push({
             id: child.key,
@@ -62,3 +63,11 @@ export const addExpense = (expense)=> ({
     id,
     updates
   });
+
+export const startEditExpense = (id,updates) => {
+  return (dispatch)=>{
+return  database.ref(`expenses/${id}`).update(updates).then(()=>{
+      dispatch(editExpense(id,updates));
+    });
+  };
+}; 
